@@ -173,6 +173,10 @@ func processPacket(packet collectd.Packet) []*influxdb.Series {
 		}
 
 		name := hostName + "." + pluginName + "." + typeName
+		// Define common metric
+		nameMETRIC := typeName
+		hostNameMETRIC := `"` + hostName + `"`
+		pluginNameMETRIC := `"` + pluginName + `"`
 
 		// influxdb stuffs
 		timestamp := packet.Time().UnixNano() / 1000000
@@ -202,10 +206,11 @@ func processPacket(packet collectd.Packet) []*influxdb.Series {
 
 		if readyToSend {
 			series := &influxdb.Series{
-				Name:    name,
-				Columns: []string{"time", "value"},
+				Name:    nameMETRIC,
+				//Columns: []string{"time", "value"},
+				Columns: []string{"time", "value", "host", "plugin"},
 				Points: [][]interface{}{
-					[]interface{}{timestamp, normalizedValue},
+					[]interface{}{timestamp, normalizedValue, hostNameMETRIC, pluginNameMETRIC},
 				},
 			}
 			if *verbose {
